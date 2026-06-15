@@ -1,7 +1,8 @@
 from datetime import datetime
+from pydantic import BaseModel
 from typing import Optional
 
-from pydantic import BaseModel
+from models import DebtType
 
 
 class SignUpModel(BaseModel):
@@ -35,26 +36,43 @@ class LoginModel(BaseModel):
     password: str
 
 
-class DebtCreateSchema(BaseModel):
-    debt_type: str
-    person_name: str
-    amount: float
-    currency: str
-    description: str
-    date_due: datetime
+class SettingsSchema(BaseModel):
+    default_currency: CurrencyType
+    reminder_hours_before: int
 
     class Config:
         orm_mode = True
-        schema_extra = {
-            "example": {
-                "debt_type": "owed_to",
-                "person_name": "Bunyod",
-                "amount": 100,
-                "currency": "UZS",
-                "description": "Do'stimga qarz berdim",
-                "date_due": "2025-12-31T13:00:00"
-            }
-        }
+
+
+from models import CurrencyType
+
+
+class SettingsUpdateSchema(BaseModel):
+    default_currency: CurrencyType
+    reminder_hours_before: int
+
+    class Config:
+        orm_mode = True
+
+
+class DebtCreateSchema(BaseModel):
+    debt_type: DebtType
+    person_name: str
+    amount: float
+    currency: CurrencyType
+    description: str | None = None
+    date_due: datetime | None = None
+
+
+class DebtUpdateSchema(BaseModel):
+    debt_type: DebtType
+    person_name: str
+    amount: float
+    currency: CurrencyType
+    description: str | None = None
+    date_due: datetime | None = None
+    is_paid: bool
+
 
 class DebtTypeSchema(BaseModel):
     debt_type: str
@@ -66,3 +84,9 @@ class DebtTypeSchema(BaseModel):
                 "debt_type": "owed_to",
             }
         }
+
+
+class MonitoringSchema(BaseModel):
+    total_owed_to: float
+    total_owed_by: float
+    balance: float

@@ -31,12 +31,19 @@ async def welcome(Authorize: AuthJWT = Depends()):
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: SignUpModel):
     db_email = session.query(User).filter(User.email == user.email).first()
-    if db_email is not None:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This email already registered")
+    if db_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email already registered"
+        )
 
     db_username = session.query(User).filter(User.username == user.username).first()
-    if db_username is not None:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This username already registered")
+
+    if db_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This username already registered"
+        )
 
     new_user = User(
         username=user.username,
